@@ -1,0 +1,224 @@
+
+
+
+Descriptive statistics
+
+* Step 1: Generate descriptive statistics for all variables.
+FREQUENCIES VARIABLES=PHQ1 PHQ2 PHQ3 PHQ4 PHQ5 PHQ6 PHQ7 PHQ8 PHQ9 PHQ10 PHQ11 PHQ12 PHQ13 PHQ14 PHQ15
+    PCL1 PCL2 PCL3 PCL4 PCL5 PCL6 PCL7 PCL8 PCL9 PCL10 PCL11 PCL12 PCL13 PCL14 PCL15 PCL16 PCL17 PCL18 PCL19 PCL20
+    HSCL1 HSCL2 HSCL3 HSCL4 HSCL5 HSCL6 HSCL7 HSCL8 HSCL9 HSCL10 HSCL11 HSCL12 HSCL13 HSCL14 HSCL15 HSCL16 HSCL17 HSCL18 HSCL19 HSCL20 HSCL21 HSCL22 HSCL23 HSCL24 HSCL25
+    TE1 TE2 TE3 TE4 TE5 TE6 TE7 TE8 TE9 TE10 TE11 TE12 TE13 TE14 TE15 TE16 TE17 TE18 TE19 TE20 TE21 TE22 TE23 TE24 TE25 TE26 TE27 TE28 TE29 TE30 TE31 TE32 TE33 TE34 TE35 TE36 TE37
+    Income_US$ Age Gender Education Occupation Social_Status Chronic_disease
+
+  /STATISTICS=MEAN MEDIAN STDDEV MIN MAX SKEWNESS KURTOSIS
+  /ORDER=ANALYSIS.
+* Step 2: Generate descriptive statistics for total score variables.
+DESCRIPTIVES VARIABLES=PHQ13_Total PCL5_Total HSCL25_Status CTC_37 PSS14_Total 
+  /STATISTICS=MEAN STDDEV MIN MAX.
+--------------------------------------------------------------------------
+
+ cutoff scores
+* Step 1: Create a new variable PHQ13_cutoff1 based on the condition PHQ13_Total >= 15.
+COMPUTE PHQ13_cutoff1 = (PHQ13_Total >= 15).
+EXECUTE.
+
+* Step 2: Create a new variable PCL5_Cutoff1 based on the condition PCL5_Total >= 23.
+COMPUTE PCL5_Cutoff1 = (PCL5_Total >= 23).
+EXECUTE.
+
+* Step 3: Create a new variable HSCL25_Status_Cutoff1 based on the condition HSCL25_Status >= 1.75.
+COMPUTE HSCL25_Status_Cutoff1 = (HSCL25_Status >= 1.75).
+EXECUTE.
+
+* Step 1: Generate frequency tables for cutoff variables.
+FREQUENCIES VARIABLES=PHQ13_cutoff PCL5_cutoff PHQ15_classification HSCL25_Cutoff
+  /ORDER=ANALYSIS. 
+-------------------------------------------------------------------------
+
+CORRELATIONS
+  /VARIABLES=PHQ13_Total PCL5_Total HSCL25_Status PSS14_Total Trauma_Event_Checklist_37 
+  /STATISTICS DESCRIPTIVES
+  /PRINT=TWOTAIL NOSIG
+  /MISSING PAIRWISE.
+--------------------------------------------------------------------------
+
+scales internal consistency
+
+RELIABILITY
+  /VARIABLES=PCL1 PCL2 PCL3 PCL4 PCL5 PCL6 PCL7 PCL8 PCL9 PCL10 PCL11 PCL12 PCL13 PCL14 PCL15 PCL16 PCL17 PCL18 PCL19 PCL20
+  /SCALE('ALL VARIABLES') ALL
+  /MODEL=ALPHA
+  /STATISTICS=DESCRIPTIVE SCALE
+  /SUMMARY=TOTAL.
+
+RELIABILITY
+  /VARIABLES=PHQ1 PHQ2 PHQ3 PHQ5 PHQ6 PHQ7 PHQ8 PHQ9 PHQ10 PHQ12 PHQ13 PHQ14 PHQ15
+  /SCALE('ALL VARIABLES') ALL
+  /MODEL=ALPHA
+  /STATISTICS=DESCRIPTIVE SCALE
+  /SUMMARY=TOTAL.
+
+RELIABILITY
+  /VARIABLES=HSCL1 HSCL2 HSCL3 HSCL4 HSCL5 HSCL6 HSCL7 HSCL8 HSCL9 HSCL10 HSCL11 HSCL12 HSCL13 HSCL14 HSCL15 HSCL16 HSCL17 HSCL18 HSCL19 HSCL20 HSCL21 HSCL22 HSCL23 HSCL24 HSCL25
+  /SCALE('ALL VARIABLES') ALL
+  /MODEL=ALPHA
+  /STATISTICS=DESCRIPTIVE SCALE
+  /SUMMARY=TOTAL.
+
+RELIABILITY
+  /VARIABLES=PSS1 PSS2 PSS3 PSS4R PSS5R PSS6R PSS7R PSS8 PSS9R PSS10R PSS11 PSS12 PSS13R PSS14
+  /SCALE('ALL VARIABLES') ALL
+  /MODEL=ALPHA
+  /STATISTICS=DESCRIPTIVE SCALE
+  /SUMMARY=TOTAL.
+
+-------------------------------------------------------------------------
+
+
+KR20 reliability 
+
+library(psych)
+library(haven)
+data <- read_sav("your file name & location")
+te_vars <- c("TE1", "TE2", "TE3", "TE4", "TE5", "TE6", "TE7", "TE8", "TE9", "TE10", "TE11", "TE12", "TE13", "TE14", "TE15", "TE16", "TE17", "TE18", "TE19", "TE20", "TE21", "TE22", "TE23", "TE24", "TE25", "TE26", "TE27", "TE28", "TE29", "TE30", "TE31", "TE32", "TE33", "TE34", "TE35", "TE36", "TE37")
+kr20_result <- psych::alpha(data[te_vars], check.keys=FALSE)
+print(kr20_result)
+print(kr20_result$total$raw_alpha)
+
+most common traumatic events
+
+library(ggplot2)
+data <- data.frame(
+  event = c("Seen someone with life-threatening illness or injury", "Experienced life-threatening illness or injury", "Experienced life-threatening fire or explosion", "Experienced life-threatening natural disaster", "Lost someone close due to war", "Forced to separate from family due to war", "Witnessed bombing or destruction", "Seen a dead body or rotting corpse", "Exposed to armed combat", "Severely deprived of food and water", "Lost sight or fainting during chemical attack"),
+  percent = c(82.4, 56.0, 72.5, 90.6, 62.0, 62.0, 91.8, 51.5, 90.3, 83.9, 61.4)
+)
+ggplot(data, aes(x = reorder(event, -percent), y = percent)) +
+  geom_bar(stat = "identity", fill = "steelblue", width = 0.6) +
+  theme_minimal() +
+  coord_flip() +
+  labs(title = "Most Common Traumatic Life Events", x = "Traumatic Event", y = "Percentage of Participants (%)") +
+  geom_text(aes(label = paste0(percent, "%")), hjust = -0.1, size = 3.5) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  ylim(0, 100)
+-------------------------------------------------------------------------
+
+
+IRT analysis
+
+if (!require("mirt")) install.packages("mirt")
+if (!require("haven")) install.packages("haven")
+library(mirt)
+library(haven)
+
+setwd("your file path")
+data <- read_sav("your file name & location")
+phq_items <- c("PHQ1", "PHQ2", "PHQ3","PHQ4","PHQ5", "PHQ6", "PHQ7", "PHQ8", "PHQ9", "PHQ10","PHQ11","PHQ12", "PHQ13", "PHQ14", "PHQ15")
+phq_data <- data[, phq_items]
+phq_data <- as.data.frame(lapply(phq_data, as.numeric))
+
+grm_model <- mirt(phq_data, model = 1, itemtype = "graded", verbose = FALSE)
+summary(grm_model)
+coef(grm_model, simplify = TRUE)
+plot(grm_model, type = "info")
+plot(grm_model, type = "info", facet_items = FALSE)
+plot(grm_model, type = "trace")
+
+scores <- fscores(grm_model)
+head(scores)
+
+M2(grm_model)
+itemfit(grm_model)
+=====================================================
+
+Multivariate General Linear Model (GLM) Analysis
+
+# Load necessary packages
+library(foreign)        # For reading .sav files
+library(car)            # For Box's M test and Levene's test
+library(heplots)        # For multivariate visualization
+library(ggplot2)        # For plotting
+library(dplyr)          # For data manipulation
+
+# Load your SPSS data
+file_path <- "C:/Users/Panasonic CF-XZ/OneDrive/Desktop/dada shno/Manuscripts/New folder/New folder/New folder/psychological_data_chemical_attack_2025.sav"
+data <- read.spss(file_path, to.data.frame = TRUE)
+
+# Check variable names
+names(data)
+
+# Rename Income_US. to Income_US for ease of use
+names(data)[names(data) == "Income_US."] <- "Income_US"
+
+# Select relevant variables, matching exact names
+vars <- c("PCL5_Total", "HSCL25_Total", "PHQ_15",
+          "Age", "Gender", "Income_US", "Trauma_Event_Checklist_37",
+          "Occupation", "Livingplace", "Social_Status", "Education",
+          "Social_Support", "family_member_have_disorder", "Chronic_disease")
+
+data <- data %>% select(all_of(vars))
+
+# Convert important variables to factors
+data$Gender <- factor(data$Gender)
+data$Education <- factor(data$Education)
+data$Livingplace <- factor(data$Livingplace)
+data$family_member_have_disorder <- factor(data$family_member_have_disorder)
+data$Chronic_disease <- factor(data$Chronic_disease)
+data$Occupation <- factor(data$Occupation)
+data$Social_Status <- factor(data$Social_Status)
+
+# Outcome variables matrix
+Y <- cbind(data$PHQ_15, data$PCL5_Total, data$HSCL25_Total)
+
+# Assumption checks
+# Box's M test for equality of covariance matrices
+boxM_result <- boxM(Y, interaction(data$Gender, data$Education))
+print(boxM_result)  # Expect some heterogeneity; Pillai's Trace is robust here
+
+# Levene's tests for homogeneity of variance for each outcome
+levene_PHQ <- leveneTest(data$PHQ_15 ~ interaction(data$Gender, data$Education))
+levene_PCL <- leveneTest(data$PCL5_Total ~ interaction(data$Gender, data$Education))
+levene_HSCL <- leveneTest(data$HSCL25_Total ~ interaction(data$Gender, data$Education))
+
+print(levene_PHQ)
+print(levene_PCL)
+print(levene_HSCL)
+
+# Build MANOVA formula with Gender × Education interaction and covariates
+form <- cbind(PHQ_15, PCL5_Total, HSCL25_Total) ~ Gender * Education + 
+        Trauma_Event_Checklist_37 + family_member_have_disorder + 
+        Livingplace + Chronic_disease + Income_US + 
+        Age + Occupation + Social_Status + Social_Support
+
+# Fit multivariate GLM using Pillai's Trace for robust test statistics
+fit <- manova(form, data = data)
+summary(fit, test = "Pillai")
+
+# Univariate ANOVA for each outcome
+summary.aov(fit)
+
+# Extract means and standard errors for interaction plot
+interaction_means <- data %>%
+  group_by(Gender, Education) %>%
+  summarise(mean_PHQ_15 = mean(PHQ_15, na.rm = TRUE),
+            se = sd(PHQ_15, na.rm = TRUE) / sqrt(n()),
+            .groups = 'drop')
+
+# Black & White friendly plot of Gender × Education interaction on PHQ-15 scores
+ggplot(interaction_means, aes(x = Education, y = mean_PHQ_15, group = Gender, 
+                              shape = Gender, linetype = Gender)) +
+  geom_line(size = 1) +
+  geom_point(size = 3, fill = "white") +
+  geom_errorbar(aes(ymin = mean_PHQ_15 - se, ymax = mean_PHQ_15 + se), width = 0.1) +
+  scale_shape_manual(values = c(16, 17)) +
+  scale_linetype_manual(values = c("solid", "dashed")) +
+  labs(title = "Gender × Education Interaction on Somatic Symptoms (PHQ-15)",
+       x = "Education Level",
+       y = "Mean Somatic Symptom Severity (PHQ-15)") +
+  theme_bw(base_size = 12) +
+  theme(legend.title = element_blank(),
+        axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+        axis.title.x = element_text(size = 13),
+        axis.title.y = element_text(size = 13))
+
+# Save the plot if desired
+ggsave("Gender_Education_Interaction_PHQ15.png", width = 8, height = 6)
